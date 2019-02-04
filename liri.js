@@ -33,6 +33,33 @@ var Concert = function(venue,date){
     }
     console.log("\x1b[34m","~~~~~~~~~~~~~~~~~~~~~~~~~");
   }
+  this.log = function(){
+    var log = [];
+    log.push("~~~~~~~~~~EVENT~~~~~~~~~~");
+    log.push("~Date of Search: " + moment().format("hh:mm MM/DD/YYYY"));
+    log.push("~Venue Name: " + this.venueName);
+    if (this.venueState !== "undefined"){
+      log.push("~Venue Location: " + this.venueCity + ", " + this.venueState + "  " + this.venueCountry);
+    }
+    else{
+      log.push("~Venue Location: " + this.venueCity + "  " + this.venueCountry);
+    }
+    log.push("~Concert Date: " + moment(this.eventDate).format("MM/DD/YYYY"));
+    if (moment(this.eventDate).isAfter(moment())){
+      log.push("~Time until this Event: " + moment(this.eventDate).diff(moment(),'days'));
+    }
+    else{
+      log.push("~Time since this Event: " + moment().diff(moment(this.eventDate),'days') + " days");
+    }
+    log.push("~~~~~~~~~~~~~~~~~~~~~~~~~");
+    log.push('\n');
+    var text = log.join('\r\n');
+    fs.appendFile("log.txt", text, function(err) {
+      if (err) {
+        log.push(err);
+      }    
+    });
+  }
   concerts.push(this);
 }
 var songs = [];
@@ -48,6 +75,23 @@ var Song = function(data){
     console.log("~Preview Link: " + this.preview);
     console.log("~Album: " + this.album);
     console.log("~~~~~~~~~~~~~~~~~~~~~~~~~");
+  }
+  this.log = function(){
+    var log = [];
+    log.push("~~~~~~~~~~SONG~~~~~~~~~~");
+    log.push("~Date of Search: " + moment().format("hh:mm MM/DD/YYYY"));
+    log.push("~Artists: " + this.artists);
+    log.push("~Track Title: " + this.name);
+    log.push("~Preview Link: " + this.preview);
+    log.push("~Album: " + this.album);
+    log.push("~~~~~~~~~~~~~~~~~~~~~~~~~");
+    log.push('\n');
+    var text = log.join('\r\n');
+    fs.appendFile("log.txt", text, function(err) {
+      if (err) {
+        log.push(err);
+      }    
+    });
   }
   songs.push(this);
 }
@@ -79,15 +123,29 @@ var Movie = function(data){
     console.log("\x1b[31m","~Actors: " + this.actors);
     console.log("\x1b[31m","~~~~~~~~~~~~~~~~~~~~~~~~~");
   }
+  this.log = function(){
+    var log = [];
+    log.push("~~~~~~~~~~Movie~~~~~~~~~~");
+    log.push("~Date of Search: " + moment().format("hh:mm MM/DD/YYYY"));
+    log.push("~Title: " + this.title);
+    log.push("~Release Year: " + this.releaseYear);
+    log.push("~IMDB Rating: " + this.imdbRating);
+    log.push("~Rotten Tomatoes Rating: " + this.rottenRating);
+    log.push("~Country of Origin: " + this.country);
+    log.push("~Language: " + this.lang);
+    log.push("~Plot Summary: " + this.plot);
+    log.push("~Actors: " + this.actors);
+    log.push("~~~~~~~~~~~~~~~~~~~~~~~~~");
+    log.push('\n');
+    var text = log.join('\r\n');
+    fs.appendFile("log.txt", text, function(err) {
+      if (err) {
+        log.push(err);
+      }    
+    });
+  }
   movies.push(this);
 }
-//Prompt the user for the search they want
-//Perform axios search
-//Format response to be printed
-//print results
-//log results
-
-
 
   function askLIRI(){
     inquirer.prompt([
@@ -308,12 +366,16 @@ var Movie = function(data){
       ]).then(function(answer) {  
         if (answer.more == true){ 
           if (length - curr > increment){
-            for (var i = curr; i < curr + increment; i++){ arr[i].print(); }
+            for (var i = curr; i < curr + increment; i++){ 
+              arr[i].print();
+              arr[i].log(); 
+            }
             more(arr, curr+increment, arr.length, increment, question);
           }
           else{
             for (var i = curr; i < length; i++){
               arr[i].print();
+              arr[i].log(); 
             }
             setTimeout(function(){
               tryAgain(question);
@@ -346,11 +408,17 @@ var Movie = function(data){
     }
 
     if (array.length > 5){
-      for (var i = 0; i < 5; i++){ array[i].print(); }
+      for (var i = 0; i < 5; i++){ 
+        array[i].print();
+        array[i].log(); 
+      }
       if (presentMore == true && randBool == false){ more(array, 5, array.length, 5, question);}
     }
     else{
-      for (var i = 0; i < array.length; i++){ array[i].print(); }
+      for (var i = 0; i < array.length; i++){ 
+        array[i].print();
+        array[i].log(); 
+      }
       if (randBool === false){ 
         setTimeout(function(){
           tryAgain(question);
@@ -463,8 +531,8 @@ var Movie = function(data){
         var _movie = new Movie(data);
         if (data != []){
           setTimeout(function(){
-            if (randBool === false){ presentOptions(type,false,false); }
-            else{ presentOptions(type,false,true); }
+            if (randBool == true){ presentOptions(type,false,true); }
+            else{ presentOptions(type,false,false); }
           },1000);
         }
       }
